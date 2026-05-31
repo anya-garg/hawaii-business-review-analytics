@@ -28,10 +28,10 @@ The second `meta` dataset contains 21,507 rows and 15 columns as follows:
 |`gmap_id`          |   ID of the business  |
 |`description`      |	description of the business   |
 |`latitude`         |	latitude of the business   |
-|`longitude`	    |   longitude of the business   |
+|`longitude`	      |   longitude of the business   |
 |`category`         |	category of the business   |
 |`avg_rating`       |	average rating of the business   |
-|`num_of_reviews`	|   number of reviews    |
+|`num_of_reviews`	  |   number of reviews    |
 |`price`            |   price of the business     |
 |`hours`            |   open hours    |
 |`MISC`             |	MISC information    |
@@ -41,5 +41,10 @@ The second `meta` dataset contains 21,507 rows and 15 columns as follows:
 
 ## Step 2: Data Cleaning and Exploratory Data Analysis
 
-In order to perform meaningful analysis, I had to merge the two data frames together based on the business being reviewed (`gmap_id`).
+In order to perform meaningful analysis, I had to merge several datasets together. This combining and cleaning proccess was conducted as follows:
+1. Perform an outer merge on the `review` dataset and `meta` dataset together on the `gmap_id` column
+2. Upload another dataset tracking which businesses are in wealthier and less wealthy regions, from the American Community Survey in Hawaii (https://data.census.gov/table/ACSDP5Y2018.DP03?g=040XX00US15&layer=VT_2018_140_00_PY_D1&hidePreview=false&cid=DP03_0001E&vintage=2018&tid=ACSDP5Y2018.DP03), and filter to only the neccessary columns (`GEOID`, `NAME`, `DP03_0062E` (representing median income))
+3. To link them together, upload a census tract shapefile to merge on the `GEOID` column of the ACS dataset (https://geoportal.hawaii.gov/datasets/HiStateGIS::2020-census-tracts/explore?location=31.072143%2C54.064055%2C3).
+4. Converted the merged set into a CRS (Coordinate Reference System) and join with first dataset with ```gpd.sjoin(hawaii_gpd, tracts_wealth, how="left", predicate="within")```
+5. select only important columns and rename
 
