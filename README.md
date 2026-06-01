@@ -48,3 +48,19 @@ In order to perform meaningful analysis, I had to merge several datasets togethe
 4. Converted the merged set into a CRS (Coordinate Reference System) and join with first dataset with ```gpd.sjoin(hawaii_gpd, tracts_wealth, how="left", predicate="within")```
 5. select only important columns and rename
 
+The first 5 rows of the cleaned dataframe are displayed below:
+
+| gmap_id | rating | text | address | avg_rating | num_of_reviews | category | median_income | wealth_group | business_responds |
+|----------|--------|------|----------|------------|----------------|----------|---------------|--------------|------------------|
+| 0x0:0x9edcb14b0cf1ec04 | 5.0 | The whole diving experience was amazing... | Dive Oahu, 609 Keawe St, Honolulu, HI 96813 | 4.2 | 278 | SCUBA instructor | 79180.0 | Low | True |
+| 0x0:0x9edcb14b0cf1ec04 | 5.0 | Alex and Morgan were phenomenal teachers... | Dive Oahu, 609 Keawe St, Honolulu, HI 96813 | 4.2 | 278 | SCUBA instructor | 79180.0 | Low | True |
+| 0x0:0x9edcb14b0cf1ec04 | 5.0 | I did my scuba diving certification... | Dive Oahu, 609 Keawe St, Honolulu, HI 96813 | 4.2 | 278 | SCUBA instructor | 79180.0 | Low | True |
+| 0x0:0x9edcb14b0cf1ec04 | 5.0 | Great experience great dive guides... | Dive Oahu, 609 Keawe St, Honolulu, HI 96813 | 4.2 | 278 | SCUBA instructor | 79180.0 | Low | True |
+| 0x0:0x9edcb14b0cf1ec04 | 5.0 | Excellent instruction and instructors... | Dive Oahu, 609 Keawe St, Honolulu, HI 96813 | 4.2 | 278 | SCUBA instructor | 79180.0 | Low | True |
+
+After cleaning, the dataframe has 1475175 rows and 30 columns.
+
+# Univariate Plots
+
+We aim to look at the distributions of relevant columns, namely ratings and income. This is the first step of our exploratory data analysis. The idea behind this is to get a sense of how exactly the data is stuctured, so we can move forward with our later analysis.
+
