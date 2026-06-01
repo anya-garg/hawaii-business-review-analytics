@@ -197,4 +197,60 @@ This appears to be true. This pattern strongly suggests that the missing values 
 
 # Step 4: Hypothesis Testing
 
+As mentioned in the introduction, I wish to explore if a business' location in a wealthier location leads to different ratings. It could be the case that businesses in more affluent neighborhoods are treated differently, as consumers living near them might be more or less inclined to see spending there as a worthwhile and appropriate use of their money, and thus respond differently. As such, we test the following hypotheses:
 
+Null hypothesis: There is no difference in ratings in regions with high levels of affluence and low levels.
+
+Alternative hypothesis: There is a difference in ratings in regions with high levels of affluence and low levels.
+
+Test statistic: Signed difference in means.
+
+Significance level: 0.05.
+
+We shuffled the `wealth_group` column (which we created in the data cleaning process) 500 times and computed signed difference in means. I have visualized this distribution below:
+
+<iframe
+  src="assets/perm_test.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
+`p value: 0.09`
+
+As shown above, the p value is not very significant, indicating that we fail to reject the null hypothesis here. Additionally, the observed difference of 0.0220 stars is not immense, indicating at the total group level that there is no such relationship present.
+
+# Step 5: Framing a Prediction Problem
+
+So far, our analysis shows wealthier regions aren't really associated with higher ratings. however, we do seem to see that number of reviews is highly variable, and could have some relationship with wealth groups. Furthermore, in accrodance with our ;ine of thinking, it is a good metric for customer engagement and could service our question of whether or not better customer ngagement is recieved by businesses in wealthier neighborhoods. We therefore run an additional hypothesis test:
+
+Null hypothesis: There is no difference in number of reviews in regions with high levels of affluence and low levels.
+
+Alternative hypothesis: There is a difference in number of reviews in regions with high levels of affluence and low levels.
+
+Test statistic: Signed difference in means.
+
+Significance level: 0.05.
+
+<iframe
+  src="assets/perm2.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
+p value: 0.006
+
+As shown, these results are much more significant and more promising. We therefore approach a refined goal to model: Can we predict how much customer engagement a business receives based on its characteristics and the socioeconomic characteristics of its surrounding region?
+
+# Step 6: Baseline Model
+
+As a baseline, I fit a linear regression model to predict the number of reviews a business receives using two simple features: the median income of the surrounding area and the business's price category. Since price is categorical, it was one-hot encoded before fitting the model.
+
+The model achieved an R² of 0.0085 on the training set, indicating that less than 1% of the variation in review counts can be explained by these predictors. This suggests that neither local income levels nor price category are strong determinants of the number of reviews a business receives.
+
+To evaluate predictive performance, I computed the root mean squared error (RMSE). The training RMSE was 1879.10 reviews, while the testing RMSE was 1874.85 reviews. Because the training and testing errors are nearly identical, there is little evidence of overfitting. Instead, the model appears to underfit the data, failing to capture important factors that influence customer engagement.
+
+Overall, this baseline demonstrates that simple demographic and pricing information alone is insufficient for accurately predicting review counts. More informative business characteristics and textual features are likely needed to improve predictive performance.
+
+# Step 7: Final Model
