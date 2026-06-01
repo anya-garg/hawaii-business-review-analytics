@@ -1,4 +1,4 @@
-# Mo' Money Mo' Problems: Do Businesses in Wealthier Regions Recieve Worse Reviews?
+Do Businesses in Wealthier Regions Recieve Worse Reviews?
 
 by Anya Garg
 
