@@ -134,3 +134,13 @@ We now perform a missingness analysis. Missingness is classified into 4 types: M
 | 900-949 | 1.000000 | 0.000000 |
 
 Here we see that the proportion of missing ratings varies substantially across review-count groups. Businesses with fewer than 50 reviews have an 11.5% missing-rate, while businesses with more than 100 reviews have missing-rates below 0.1%. Because the probability of missingness depends on the observed variable num_of_reviews, the missingness mechanism is unlikely to be Missing Completely at Random (MCAR). Instead, the evidence is consistent with Missing At Random (MAR), suggesting that analyses involving ratings should account for review count to mitigate potential bias.
+
+Therefore, we run a permutation test over the difference in the mean number of reviews where ratings were missing. Here, 
+
+Null hypothesis: The missingness of ratings does not depend on the recipe’s number of ingredients.
+
+Alternative hypothesis: The missingness of ratings does depend on the recipe’s number of ingredients.
+
+Test statistic: Total variation distance (TVD)
+
+Significance level: 0.05
