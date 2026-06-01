@@ -47,7 +47,7 @@ In order to perform meaningful analysis, I had to merge several datasets togethe
 3. To link them together, upload a census tract shapefile to merge on the `GEOID` column of the ACS dataset (https://geoportal.hawaii.gov/datasets/HiStateGIS::2020-census-tracts/explore?location=31.072143%2C54.064055%2C3).
 4. Converted the merged set into a CRS (Coordinate Reference System) and join with first dataset with ```gpd.sjoin(hawaii_gpd, tracts_wealth, how="left", predicate="within")```
 5. select only important columns and rename
-6. Add a column called ```wealth group```, a binary column stating ```high``` for businesses in regions where income is higher than overall median and ```low``` for businesses in regions where income is lower.
+6. Add a column called `wealth group`, a binary column stating `high` for businesses in regions where income is higher than overall median and `low` for businesses in regions where income is lower.
 
 The first 5 rows of the cleaned dataframe are displayed below:
 
@@ -107,6 +107,30 @@ I then create a pivot table displaying the average rating for businesses of a ce
 
 # Step 3: Assessment of Missingness
 
+We now perform a missingness analysis. Missingness is classified into 4 types: Missing Completely at Random, Missing at Random, Missing Not at Random, and Missing by Design. Missing Completely at Random (MCAR) is a situation where the probability of data being missing is completely independent of both observed and unobserved data. It is purely accidental. Missing at Random (MAR) is where the missingness is systematically related to observed data but not the unobserved data. Missing Not at Random (MNAR) is when the missingness depends on the unobserved data itself. Missing by Design is data that is missing due to a logical design in the dataset, rather than being lost. In our dataset, there are likely 3 columns missing by design: `pics`, `text`, and `resp` are NMAR as many reviews do not contain pictures, review text, or have no responses. To analyse the remaining missingnes, we construct a pivot table first showing the proportion of reviews with missing ratings across review count groups.
+
 ## NMAR Analysis
 
-Pics, text, resp are NMAR as many reviews do not contain pics, text, or have no responses
+| review_count_group | False | True |
+|-------------------|--------:|-------:|
+| 0-49 | 0.885060 | 0.114940 |
+| 50-99 | 0.997264 | 0.002736 |
+| 100-149 | 0.999187 | 0.000813 |
+| 150-199 | 0.999619 | 0.000381 |
+| 200-249 | 0.999789 | 0.000211 |
+| 250-299 | 0.999931 | 0.000069 |
+| 300-349 | 0.999899 | 0.000101 |
+| 350-399 | 1.000000 | 0.000000 |
+| 400-449 | 0.999953 | 0.000047 |
+| 450-499 | 0.999978 | 0.000022 |
+| 500-549 | 1.000000 | 0.000000 |
+| 550-599 | 1.000000 | 0.000000 |
+| 600-649 | 1.000000 | 0.000000 |
+| 650-699 | 1.000000 | 0.000000 |
+| 700-749 | 0.999967 | 0.000033 |
+| 750-799 | 1.000000 | 0.000000 |
+| 800-849 | 1.000000 | 0.000000 |
+| 850-899 | 1.000000 | 0.000000 |
+| 900-949 | 1.000000 | 0.000000 |
+
+Here we see that the proportion of missing ratings varies substantially across review-count groups. Businesses with fewer than 50 reviews have an 11.5% missing-rate, while businesses with more than 100 reviews have missing-rates below 0.1%. Because the probability of missingness depends on the observed variable num_of_reviews, the missingness mechanism is unlikely to be Missing Completely at Random (MCAR). Instead, the evidence is consistent with Missing At Random (MAR), suggesting that analyses involving ratings should account for review count to mitigate potential bias.
