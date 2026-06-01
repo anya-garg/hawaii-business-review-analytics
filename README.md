@@ -135,12 +135,66 @@ We now perform a missingness analysis. Missingness is classified into 4 types: M
 
 Here we see that the proportion of missing ratings varies substantially across review-count groups. Businesses with fewer than 50 reviews have an 11.5% missing-rate, while businesses with more than 100 reviews have missing-rates below 0.1%. Because the probability of missingness depends on the observed variable num_of_reviews, the missingness mechanism is unlikely to be Missing Completely at Random (MCAR). Instead, the evidence is consistent with Missing At Random (MAR), suggesting that analyses involving ratings should account for review count to mitigate potential bias.
 
-Therefore, we run a permutation test over the difference in the mean number of reviews where ratings were missing. Here, 
+Therefore, to investigate whether missing ratings are associated with the number of reviews a business has received, I conducted a permutation test.
 
-Null hypothesis: The missingness of ratings does not depend on the recipe’s number of ingredients.
+Null Hypothesis (H_0): The missingness of a business's rating is independent of its number of reviews. Any observed difference in review counts between businesses with missing ratings and those with observed ratings is due to random chance.
 
-Alternative hypothesis: The missingness of ratings does depend on the recipe’s number of ingredients.
+Alternative Hypothesis (H_1): The missingness of a business's rating depends on its number of reviews.
 
-Test statistic: Total variation distance (TVD)
+The test statistic used was the difference in mean number of reviews between businesses with missing ratings and businesses with observed ratings:
 
-Significance level: 0.05
+\text{Mean Reviews}_{\text{Observed}}
+]
+
+To generate the null distribution, the missingness indicator was randomly shuffled 5,000 times while keeping the review counts fixed. For each shuffle, the difference in mean review counts was recomputed. The p-value was calculated as the proportion of simulated statistics whose absolute value was at least as extreme as the observed statistic.
+
+<iframe
+  src="assets/missingness_perm.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
+The resulting permutation distribution was centered near zero, while the observed statistic fell far in the tail of the distribution. The resulting p-value was effectively zero (or extremely small), providing strong evidence against the null hypothesis.
+
+These results suggest that rating missingness is related to the number of reviews a business has received. In particular, businesses with relatively few reviews are substantially more likely to have missing ratings than businesses with many reviews. Therefore, the missingness mechanism is unlikely to be Missing Completely At Random (MCAR) and is more consistent with Missing At Random (MAR), since missingness appears to depend on an observed variable (`num_of_reviews`).
+
+We constructed an alternative visualization to further demonstrate our results:
+
+<iframe
+  src="assets/missingness_line.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
+This pattern looks odd on the surface, but shows much higher proportions of missingness for businesses that have fewer reviews than businesses that have many. This could indicate that the pattern of missing individual ratings is systematically tied to the business (ie. every business, regardless of how many revues it has, has 1 missing rating). Therefore, to investigate this, we check exactly how many businesses have 0 missing ratings, 1 missing ratings, 2 missing, 3 missing, etc. displayed in the following table:
+
+| rating | count |
+|--------|------:|
+| 0 | 11,449 |
+| 1 | 9,411 |
+| 2 | 53 |
+
+Here, we see almost every business has at most 1 missing rating, with a few missing 2. We now will investigate the characteristics of these missing rows. Sometimes, google review datasets have "summary rows", which have the rest of the columns showing NaN as well. we check if this could be the case visually by randomly sampling 10 rows, then empirically by calculating the porportion of rows for which this is true.
+
+| Index | rating | text | resp |
+|--------:|-------:|------|------|
+| 1447457 | NaN | NaN | NaN |
+| 277750 | NaN | NaN | NaN |
+| 1196273 | NaN | NaN | NaN |
+| 513087 | NaN | NaN | NaN |
+| 218274 | NaN | NaN | NaN |
+| 265980 | NaN | NaN | NaN |
+| 1359875 | NaN | NaN | NaN |
+| 129855 | NaN | NaN | NaN |
+| 461941 | NaN | NaN | NaN |
+| 290118 | NaN | NaN | NaN |
+
+`proportion of missing rows where all other columns are also missing: 1.0`
+
+This appears to be true. This pattern strongly suggests that the missing values arise from the structure of the dataset or the merge process rather than from users selectively omitting ratings. Consequently, the missingness appears to be structural (MD) rather than MCAR, MAR, or NMAR in the traditional sense.
+
+# Step 4: Hypothesis Testing
+
+
