@@ -1,5 +1,3 @@
-# Do Businesses in Wealthier Regions Recieve Worse Reviews?
-
 by Anya Garg
 
 # Introduction
