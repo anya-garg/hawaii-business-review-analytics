@@ -7,35 +7,37 @@ Hawaii, in recent years, has seen a burgeoning tourism industry that has drawn a
 To begin, I load in data from Google Maps containing reviews of various locations in Hawaii. It was originally scraped and used by the authors of these papers: https://aclanthology.org/2022.acl-long.426.pdf, https://arxiv.org/pdf/2207.00422. The full dataset is quite long, so I will only be using the 10-core one.
 
 The first dataset, the `review` dataset, contains 1,504,347 rows and 8 columns as follows:
-|  **Column**       |  **Description** |
-| ---------         | ------------ |
-|`user_id`	        |   ID of the reviewer    |
-|`name`             |   name of the reviewer      |
-|`time`             |   time of the review (unix time)  |
-|`rating`           |	rating of the business   |
-|`text`             |	text of the review   |
-|`pics`	            |   pictures of the review   |
-|`resp`             |	business response to the review including unix time and text of the response   |
-|`gmap_id`          |	ID of the business   |
 
-The second `meta` dataset contains 21,507 rows and 15 columns as follows:
-|  **Column**       |  **Description** |
-| ---------         | ------------ |
-|`name`	            |   name of the business    |
-|`address`          |   address of the business      |
-|`gmap_id`          |   ID of the business  |
-|`description`      |	description of the business   |
-|`latitude`         |	latitude of the business   |
-|`longitude`	      |   longitude of the business   |
-|`category`         |	category of the business   |
-|`avg_rating`       |	average rating of the business   |
-|`num_of_reviews`	  |   number of reviews    |
-|`price`            |   price of the business     |
-|`hours`            |   open hours    |
-|`MISC`             |	MISC information    |
-|`state`            |	the current status of the business (e.g., permanently closed)   |
-|`relative_results`	|   relative businesses recommended by Google   |
-|`url`              |	URL of the business   |
+| Column | Description |
+|----------|----------|
+| `user_id` | ID of the reviewer |
+| `name` | Name of the reviewer |
+| `time` | Time of the review (Unix timestamp) |
+| `rating` | Rating given by the reviewer |
+| `text` | Text of the review |
+| `pics` | Pictures attached to the review |
+| `resp` | Business response, including response time and text |
+| `gmap_id` | ID of the business |
+
+The second `meta` dataset contains 21,507 rows and 15 columns:
+
+| Column | Description |
+|----------|----------|
+| `name` | Name of the business |
+| `address` | Address of the business |
+| `gmap_id` | ID of the business |
+| `description` | Description of the business |
+| `latitude` | Latitude of the business |
+| `longitude` | Longitude of the business |
+| `category` | Business categories |
+| `avg_rating` | Average rating of the business |
+| `num_of_reviews` | Number of reviews |
+| `price` | Price level of the business |
+| `hours` | Business operating hours |
+| `MISC` | Additional business information |
+| `state` | Current business status (e.g., permanently closed) |
+| `relative_results` | Related businesses recommended by Google |
+| `url` | URL of the business |
 
 # Step 2: Data Cleaning and Exploratory Data Analysis
 
