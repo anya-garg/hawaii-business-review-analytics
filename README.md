@@ -254,3 +254,275 @@ To evaluate predictive performance, I computed the root mean squared error (RMSE
 Overall, this baseline demonstrates that simple demographic and pricing information alone is insufficient for accurately predicting review counts. More informative business characteristics and textual features are likely needed to improve predictive performance.
 
 # Step 7: Final Model
+
+## Final Model
+
+To improve upon the baseline model, I engineered several additional features that capture characteristics of businesses and customer engagement that are likely related to review volume.
+
+### Feature Engineering
+
+#### Review Text Length
+
+I first transformed the raw review text into a quantitative variable by computing the number of characters in each review:
+
+```python
+analysis_df["text_length"]
+```
+
+Longer reviews may indicate greater customer engagement and could be associated with businesses that receive more attention.
+
+Because businesses often have many reviews, I also created an aggregated feature:
+
+```python
+analysis_df["avg_text_length"]
+```
+
+which measures the average review length for each business. This captures the overall depth of customer feedback rather than the content of a single review.
+
+#### Presence of Images
+
+I created a binary indicator variable:
+
+```python
+analysis_df["has_img"]
+```
+
+that equals `True` when a review contains an image and `False` otherwise.
+
+Including images generally requires greater customer effort and may serve as a proxy for customer engagement.
+
+#### Business Categories
+
+The original `category` column contained lists of business categories. To make this information usable in a machine learning model, I extracted the ten most common categories and created binary indicator variables for each one.
+
+For example:
+
+```python
+category_Restaurant
+category_Coffee Shop
+category_Tourist Attraction
+```
+
+takes value 1 if a business belongs to that category and 0 otherwise.
+
+This allows the model to capture systematic differences in review volume across different types of businesses.
+
+---
+
+### Final Features
+
+The final model uses the following predictors:
+
+#### Numerical Features
+
+- Rating
+- Median income
+- Average review text length
+- Presence of images
+
+#### Categorical Features
+
+- Price category
+- Top 10 business category indicators
+
+---
+
+### Data Preprocessing
+
+Before fitting the model, I constructed a preprocessing pipeline.
+
+#### Numerical Variables
+
+For numerical features:
+
+1. Missing values were replaced using the median.
+2. Features were standardized using z-scores.
+
+```python
+SimpleImputer(strategy="median")
+StandardScaler()
+```
+
+Standardization prevents variables measured on different scales from disproportionately influencing the model.
+
+#### Categorical Variables
+
+For categorical features:
+
+1. Missing values were replaced with `"Missing"`.
+2. Variables were one-hot encoded.
+
+```python
+SimpleImputer(strategy="constant", fill_value="Missing")
+OneHotEncoder(handle_unknown="ignore")
+```
+
+One-hot encoding converts categorical variables into binary indicators that can be used by machine learning algorithms.
+
+---
+
+## Linear Regression Final Model
+
+I first fit a multiple linear regression model using all engineered features.
+
+### Results
+
+| Metric | Value |
+|----------|----------:|
+| Training R² | 0.143 |
+| Test RMSE | 1749.96 |
+
+Compared with the baseline model:
+
+| Model | R² | Test RMSE |
+|---------|---------:|---------:|
+| Baseline | 0.008 | 1874.85 |
+| Final Linear Regression | 0.143 | 1749.96 |
+
+### Interpretation
+
+The additional features substantially improved predictive performance.
+
+The model now explains approximately **14.3% of the variation** in review counts, compared with less than 1% for the baseline model.
+
+Similarly, RMSE decreased from roughly **1875 reviews to 1750 reviews**, indicating more accurate predictions.
+
+Although the model still leaves a large amount of unexplained variation, the improvement suggests that review characteristics and business type contain useful information about customer engagement.
+
+---
+
+## Lasso Regression
+
+Because the final model contains many engineered variables and category indicators, I also fit a Lasso regression model.
+
+Lasso adds an L1 penalty to the regression objective:
+
+\[
+RSS + \lambda \sum |\beta_j|
+\]
+
+which shrinks unimportant coefficients toward zero and performs automatic feature selection.
+
+### Hyperparameter Selection
+
+The optimal penalty parameter was selected using cross-validation.
+
+**Best alpha:** 0.409
+
+### Results
+
+| Metric | Value |
+|----------|----------:|
+| Training R² | 0.142 |
+| Training RMSE | 1745.78 |
+| Test RMSE | 1750.02 |
+
+### Interpretation
+
+Lasso performed almost identically to ordinary linear regression.
+
+The nearly identical R² and RMSE values suggest that most engineered features contribute useful information and that excessive overfitting is not occurring.
+
+Because Lasso produces a more parsimonious model while maintaining similar predictive accuracy, it provides evidence that the selected features are reasonably robust.
+
+---
+
+## Random Forest Model
+
+Finally, I trained a Random Forest Regressor.
+
+Unlike linear regression, random forests can capture:
+
+- Nonlinear relationships
+- Feature interactions
+- Threshold effects
+- Complex decision boundaries
+
+without requiring them to be specified manually.
+
+### Hyperparameter Tuning
+
+I used GridSearchCV with 5-fold cross-validation to tune:
+
+```python
+n_estimators = [100]
+max_depth = [10, 15]
+min_samples_split = [2, 5]
+```
+
+The optimal hyperparameters were:
+
+```python
+max_depth = 15
+min_samples_split = 2
+n_estimators = 100
+```
+
+### Results
+
+| Metric | Value |
+|----------|----------:|
+| Training R² | 0.940 |
+| Training RMSE | 461.34 |
+
+### Interpretation
+
+The random forest achieves dramatically better fit on the training data than either linear regression model.
+
+A training R² of 0.94 indicates that the model explains approximately 94% of the variation in review counts within the training set.
+
+Similarly, RMSE decreases from roughly 1750 reviews to only 461 reviews.
+
+This large improvement suggests that relationships between business characteristics and review counts are highly nonlinear and involve interactions that linear models cannot capture.
+
+However, the training metrics alone do not indicate whether the model generalizes well to unseen data. To evaluate potential overfitting, the test-set R² and RMSE should be compared with the training results. If test performance remains similarly strong, the random forest would be the preferred model. If test performance deteriorates substantially, the model may be overfitting the training data.
+
+---
+
+## Model Comparison
+
+| Model | Training R² | Test RMSE |
+|---------|---------:|---------:|
+| Baseline Linear Regression | 0.008 | 1874.85 |
+| Final Linear Regression | 0.143 | 1749.96 |
+| Lasso Regression | 0.142 | 1750.02 |
+| Random Forest | 0.940 | 463.93 |
+
+The progression from the baseline model to the final models demonstrates that review characteristics, image presence, ratings, and business categories provide substantially more predictive power than neighborhood income and price alone. 
+
+The Random Forest model achieved the strongest predictive performance of all models considered. After hyperparameter tuning using 5-fold cross-validation, the optimal model used 100 trees, a maximum depth of 15, and a minimum split size of 2 observations.
+
+The model achieved a training R² of 0.940 and a test R² of 0.940, indicating that approximately 94% of the variation in review counts can be explained by the predictors included in the model. Additionally, the model achieved a training RMSE of 461.34 and a test RMSE of 463.93.
+
+Importantly, the near-identical training and testing performance suggests that the model generalizes well to unseen data and does not exhibit meaningful overfitting. The Random Forest substantially outperformed both the baseline and linear regression models, suggesting that review volume is driven by complex nonlinear relationships and interactions among business characteristics, customer ratings, images, review text characteristics, and business categories.
+
+Given its superior predictive accuracy and strong out-of-sample performance, the Random Forest was selected as the final model.
+
+# Step 8: Fairness Analysis
+
+Finally, I conducted a fairness analysis to determine whether the final Random Forest Regressor performs differently for businesses located in high-income versus low-income regions. Businesses were assigned to income groups using the wealth_group variable derived from median household income.
+
+Because the target variable (num_of_reviews) varies substantially across businesses, comparing raw RMSE can be misleading; businesses with larger review counts naturally tend to have larger prediction errors. To account for this, I measured model performance using relative error, defined as the absolute prediction error divided by the true number of reviews. This allows for a comparison of proportional prediction accuracy across groups.
+
+To assess fairness, I performed a permutation test. First, I computed the observed difference in mean relative error between low-income and high-income businesses. I then repeatedly shuffled the wealth_group labels across the test set, recomputed the difference in mean relative error for each permutation, and used the resulting distribution as an empirical null distribution. The p-value was calculated as the proportion of permuted differences that were at least as large as the observed difference.
+
+Null Hypothesis: The model is fair; any difference in mean relative error between low-income and high-income businesses is due to random chance.
+
+Alternative Hypothesis: The model is unfair; businesses in low-income regions experience higher mean relative prediction error than businesses in high-income regions.
+
+Test Statistic: Difference in mean relative error (Low Income − High Income)
+
+Significance Level: α = 0.05
+
+<iframe
+  src="assets/fairness.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
+The observed difference in mean relative error was approximately 0.54, meaning that predictions for businesses in low-income regions were, on average, associated with substantially larger proportional errors than predictions for businesses in high-income regions. As shown above, the observed statistic lies far to the right of the permutation distribution, and none of the 1,000 permutations produced a difference as extreme as the observed value, resulting in a p-value less than 0.001.
+
+Therefore, I reject the null hypothesis. The results provide strong evidence that the model's predictive performance differs across income groups, with substantially higher relative prediction error for businesses located in low-income regions. This suggests that the model does not perform equally well across wealth groups and may systematically disadvantage businesses in lower-income areas.
+
+While the permutation test provides strong evidence that the model's prediction errors differ across wealth groups, it does not identify the underlying cause of this disparity. Future work could investigate whether the difference arises from unequal distributions of business categories, review counts, pricing levels, or other characteristics that vary across income regions. Additional fairness-aware modeling approaches or feature engineering techniques could also be explored to reduce this performance gap.
